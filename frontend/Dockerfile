@@ -23,6 +23,10 @@ RUN npm run build
 # ─── Stage 2: Serve via nginx ────────────────────────────────────────────────
 FROM nginxinc/nginx-unprivileged:stable-alpine
 
+USER root
+RUN apk upgrade --no-cache
+USER 101
+
 COPY --chown=101:101 nginx.conf /etc/nginx/conf.d/default.conf
 
 COPY --from=build --chown=101:101 /app/dist /usr/share/nginx/html
