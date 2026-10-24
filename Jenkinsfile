@@ -98,6 +98,8 @@ set -euo pipefail
 
 docker run --rm \
   --user "$(id -u):$(id -g)" \
+  --env HOME=/tmp \
+  --env npm_config_cache=/tmp/npm-cache \
   --mount "type=bind,src=$PWD/frontend,dst=/source,readonly" \
   node:22-alpine \
   sh -ec '
