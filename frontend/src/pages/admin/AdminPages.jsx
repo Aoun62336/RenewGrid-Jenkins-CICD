@@ -1,9 +1,10 @@
-import { customAlert, customConfirm } from '../../components/common/CustomPopup';
-import React, { useState, useEffect, useRef } from 'react';
+import { customAlert, customConfirm } from '../../components/common/popupService';
+import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import AdminSidebar from '../../components/layout/AdminSidebar';
-import api, { authAPI, notificationsAPI, BASE_URL, getToken } from '../../services/api';
+import api, { authAPI, BASE_URL, getToken } from '../../services/api';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import ProfileImageCropper from '../../components/common/ProfileImageCropper';
@@ -81,22 +82,36 @@ export function UserManagement() {
   const [searchTerm, setSearchTerm] = React.useState('');
   const debounceRef = React.useRef(null);
 
-  React.useEffect(() => { loadUsers(); }, [currentPage, searchTerm]);
+  const loadUsers = React.useCallback(async () => {
+    try {
+      const params = {
+        page: currentPage,
+        page_size: ITEMS_PER_PAGE,
+        role: 'user',
+      };
+
+      if (searchTerm) {
+        params.search = searchTerm;
+      }
+
+      const data = await api.admin.users(params);
+
+      setUsers(data.items || []);
+      setTotalPages(
+        Math.ceil((data.total || 1) / ITEMS_PER_PAGE)
+      );
+    } catch (error) {
+      console.error('Failed to load users', error);
+    }
+  }, [currentPage, searchTerm]);
+
+  React.useEffect(() => {
+    loadUsers();
+  }, [loadUsers]);
+
   React.useEffect(() => {
     api.admin.getOverview().then(setOverview).catch(() => {});
   }, []);
-
-  const loadUsers = async () => {
-    try {
-      const params = { page: currentPage, page_size: ITEMS_PER_PAGE, role: 'user' };
-      if (searchTerm) params.search = searchTerm;
-      const data = await api.admin.users(params);
-      setUsers(data.items || []);
-      setTotalPages(Math.ceil((data.total || 1) / ITEMS_PER_PAGE));
-    } catch (error) {
-      console.error("Failed to load users", error);
-    }
-  };
 
   const handleSearchChange = (e) => {
     const val = e.target.value;
@@ -192,7 +207,7 @@ export function UserManagement() {
             </tr>
           </thead>
           <tbody className="divide-y divide-outline-variant">
-            {users.map((u, i) => (
+            {users.map((u) => (
               <tr key={u.id} className="hover:bg-surface/50 transition-colors">
                 <td className="px-6 py-5">
                   <div className="flex items-center gap-3">
@@ -280,20 +295,30 @@ export function CollectorManagement() {
   const [editingCollector, setEditingCollector] = React.useState(null);
   const [overview, setOverview] = React.useState(null);
 
-  React.useEffect(() => { loadCollectors(); }, [currentPage]);
+  const loadCollectors = React.useCallback(async () => {
+    try {
+      const data = await api.admin.users({
+        role: 'collector',
+        page: currentPage,
+        page_size: ITEMS_PER_PAGE,
+      });
+
+      setCollectors(data.items || []);
+      setTotalPages(
+        Math.ceil((data.total || 1) / ITEMS_PER_PAGE)
+      );
+    } catch (error) {
+      console.error('Failed to load collectors', error);
+    }
+  }, [currentPage]);
+
+  React.useEffect(() => {
+    loadCollectors();
+  }, [loadCollectors]);
+
   React.useEffect(() => {
     api.admin.getOverview().then(setOverview).catch(() => {});
   }, []);
-
-  const loadCollectors = async () => {
-    try {
-      const data = await api.admin.users({ role: 'collector', page: currentPage, page_size: ITEMS_PER_PAGE });
-      setCollectors(data.items || []);
-      setTotalPages(Math.ceil((data.total || 1) / ITEMS_PER_PAGE));
-    } catch (error) {
-      console.error("Failed to load collectors", error);
-    }
-  };
 
   const toggleActive = async (col) => {
     try {
@@ -367,7 +392,7 @@ export function CollectorManagement() {
             </tr>
           </thead>
           <tbody className="divide-y divide-outline-variant">
-            {collectors.map((c, i) => (
+            {collectors.map((c) => (
               <tr key={c.id} className="hover:bg-surface/50 transition-colors">
                 <td className="px-6 py-5">
                   <div className="flex items-center gap-4">
@@ -445,10 +470,6 @@ export function WasteAssignment() {
   const [collectors, setCollectors] = React.useState([]);
   const [recyclers, setRecyclers] = React.useState([]);
 
-  React.useEffect(() => {
-    loadData();
-  }, []);
-
   const loadData = async () => {
     try {
       const [reqData, colData, recData] = await Promise.all([
@@ -463,6 +484,10 @@ export function WasteAssignment() {
       console.error("Failed to load assignment data", error);
     }
   };
+
+  React.useEffect(() => {
+    loadData();
+  }, []);
 
   const handleAssign = async () => {
     if (!selectedRequest || !assignedCollector || !assignedRecycler) return;
@@ -1252,17 +1277,29 @@ export function AssignRewardPoints() {
   const [success, setSuccess] = React.useState(null);
   const PAGE_SIZE = 10;
 
-  const loadJobs = async () => {
+  const loadJobs = React.useCallback(async () => {
     setLoading(true);
-    try {
-      const data = await api.admin.getCompletedJobs(page, PAGE_SIZE);
-      setJobs(data.items || []);
-      setTotalPages(Math.ceil((data.total || 1) / PAGE_SIZE));
-    } catch (err) { console.error(err); }
-    finally { setLoading(false); }
-  };
 
-  React.useEffect(() => { loadJobs(); }, [page]);
+    try {
+      const data = await api.admin.getCompletedJobs(
+        page,
+        PAGE_SIZE
+      );
+
+      setJobs(data.items || []);
+      setTotalPages(
+        Math.ceil((data.total || 1) / PAGE_SIZE)
+      );
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [page]);
+
+  React.useEffect(() => {
+    loadJobs();
+  }, [loadJobs]);
 
   const handleAssign = async (e) => {
     e.preventDefault();
@@ -2036,7 +2073,7 @@ export function TrendForecasting() {
 
   const hasData = combined.length > 0;
   const maxVal = hasData ? Math.max(...combined.map(d => d.val), 10) : 10;
-  const minVal = 0;
+  const minVal = 0; // eslint-disable-line no-unused-vars
 
   // Chart coordinates calculation helpers
   const svgWidth = 640;
@@ -2781,8 +2818,8 @@ export function AdminProfile() {
   const [profile, setProfile] = React.useState({ full_name: '', email: '', role: '', profile_image_url: '' });
   const [saving, setSaving] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
-  const [imgError, setImgError] = React.useState('');
-  const fileRef = React.useRef(null);
+  const [imgError, setImgError] = React.useState(''); // eslint-disable-line no-unused-vars
+  const fileRef = React.useRef(null); // eslint-disable-line no-unused-vars
 
   React.useEffect(() => {
     authAPI.me().then(u => setProfile(u)).catch(() => {});
@@ -2809,7 +2846,7 @@ export function AdminProfile() {
     finally { setSaving(false); }
   };
 
-  const initials = profile.full_name ? profile.full_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : 'A';
+  const initials = profile.full_name ? profile.full_name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : 'A'; // eslint-disable-line no-unused-vars
 
   return (
     <AdminPage title="Profile" subtitle="Account Settings">
@@ -3034,19 +3071,25 @@ export function WasteUploads() {
   const [currentPage, setCurrentPage] = React.useState(1);
   const [totalPages, setTotalPages] = React.useState(1);
 
-  React.useEffect(() => {
-    loadUploads();
+  const loadUploads = React.useCallback(async () => {
+    try {
+      const data = await api.admin.wasteUploads(
+        currentPage,
+        ITEMS_PER_PAGE
+      );
+
+      setUploads(data.items || []);
+      setTotalPages(
+        Math.ceil((data.total || 1) / ITEMS_PER_PAGE)
+      );
+    } catch (error) {
+      console.error('Failed to load waste uploads', error);
+    }
   }, [currentPage]);
 
-  const loadUploads = async () => {
-    try {
-      const data = await api.admin.wasteUploads(currentPage, ITEMS_PER_PAGE);
-      setUploads(data.items || []);
-      setTotalPages(Math.ceil((data.total || 1) / ITEMS_PER_PAGE));
-    } catch (error) {
-      console.error("Failed to load waste uploads", error);
-    }
-  };
+  React.useEffect(() => {
+    loadUploads();
+  }, [loadUploads]);
 
   return (
     <AdminPage title="Waste Uploads" subtitle="Operations">

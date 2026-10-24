@@ -1,4 +1,4 @@
-import { customAlert, customConfirm } from '../../components/common/CustomPopup';
+import { customAlert } from '../../components/common/popupService';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import RecyclerSidebar from '../../components/layout/RecyclerSidebar';
@@ -17,6 +17,7 @@ export default function WasteReceipt() {
         .catch(err => customAlert("Error loading receipt: " + err.message))
         .finally(() => setLoading(false));
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(false);
     }
   }, [id]);

@@ -17,6 +17,7 @@ export default function DashboardLayout({ sidebar: SidebarComponent, title, chil
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadNotifications();
     // Poll every 60s
     const interval = setInterval(loadNotifications, 60_000);
@@ -51,7 +52,10 @@ export default function DashboardLayout({ sidebar: SidebarComponent, title, chil
 
   return (
     <div className="bg-surface text-on-surface min-h-screen">
-      <SidebarComponent isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+      {React.createElement(SidebarComponent, {
+        isOpen: isSidebarOpen,
+        setIsOpen: setIsSidebarOpen,
+      })}
       <div className="ml-0 md:ml-64 min-h-screen flex flex-col transition-all duration-300">
         <header className="fixed top-0 right-0 w-full md:w-[calc(100%-16rem)] h-16 bg-white/85 backdrop-blur-md shadow-sm z-40 flex items-center justify-between px-4 md:px-8 transition-all duration-300">
           <div className="flex items-center gap-2 md:gap-4">

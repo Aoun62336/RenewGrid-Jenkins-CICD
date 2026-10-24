@@ -1,4 +1,4 @@
-import { customAlert, customConfirm } from '../../components/common/CustomPopup';
+import { customConfirm } from '../../components/common/popupService';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/layout/DashboardLayout';
@@ -13,16 +13,13 @@ export default function AiPriceEstimation() {
   const [pricingRules, setPricingRules] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchData();
-  }, [id]);
-
-  const fetchData = async () => {
+  const fetchData = React.useCallback(async () => {
     try {
       const [wasteData, rulesData] = await Promise.all([
         wasteAPI.getById(id),
-        systemAPI.pricingRates()
+        systemAPI.pricingRates(),
       ]);
+
       setWaste(wasteData);
       setPricingRules(rulesData || []);
     } catch (err) {
@@ -31,7 +28,11 @@ export default function AiPriceEstimation() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleConfirm = () => {
     toast.success('Price confirmed! Proceeding to schedule pickup.');

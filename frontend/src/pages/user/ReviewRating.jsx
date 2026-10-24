@@ -1,4 +1,4 @@
-import { customAlert, customConfirm } from '../../components/common/CustomPopup';
+import { customAlert } from '../../components/common/popupService';
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import UserSidebar from '../../components/layout/UserSidebar';
