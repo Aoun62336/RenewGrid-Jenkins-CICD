@@ -1,0 +1,59 @@
+name: RenewGrid — Pull Request Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: renewgrid-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate application
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci --no-audit --no-fund
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --disable-pip-version-check -r requirements.txt
+          python -m pip install pytest==8.4.2
+
+      - name: Run backend regression tests
+        working-directory: backend
+        env:
+          DATABASE_URL: sqlite:///./cicd-smoke.sqlite3
+          SECRET_KEY: ci-only-test-secret
+          REFRESH_SECRET_KEY: ci-only-refresh-secret
+        run: |
+          python -m pytest -q tests
