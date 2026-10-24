@@ -12,7 +12,7 @@ export default function CollectedWasteListing() {
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [processing, setProcessing] = useState(null);
+  const [processing, setProcessing] = useState(null); // eslint-disable-line no-unused-vars
 
   const loadWaste = async (page = 1) => {
     setLoading(true);

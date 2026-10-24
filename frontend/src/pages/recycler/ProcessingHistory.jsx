@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import RecyclerSidebar from '../../components/layout/RecyclerSidebar';
 import { recyclerAPI } from '../../services/api';
 
 export default function ProcessingHistory() {
-  const navigate = useNavigate();
   const [records, setRecords] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -12,6 +10,7 @@ export default function ProcessingHistory() {
   const PAGE_SIZE = 10;
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     recyclerAPI.myHistory(page, PAGE_SIZE)
       .then(data => {

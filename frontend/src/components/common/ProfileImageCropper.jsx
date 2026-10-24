@@ -20,7 +20,11 @@ function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
   )
 }
 
-export default function ProfileImageCropper({ currentImage, onImageUpdated, size = 'w-20 h-20', role = 'user' }) {
+export default function ProfileImageCropper({
+  currentImage,
+  onImageUpdated,
+  size = 'w-20 h-20',
+}) {
   const [imgSrc, setImgSrc] = useState('');
   const imgRef = useRef(null);
   const [crop, setCrop] = useState();

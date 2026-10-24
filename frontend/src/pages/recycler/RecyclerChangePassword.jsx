@@ -1,4 +1,4 @@
-import { customAlert, customConfirm } from '../../components/common/CustomPopup';
+import { customAlert } from '../../components/common/popupService';
 import React, { useState } from 'react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import RecyclerSidebar from '../../components/layout/RecyclerSidebar';
@@ -9,7 +9,7 @@ export default function RecyclerChangePassword() {
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState(false); // eslint-disable-line no-unused-vars
   const [form, setForm] = useState({ current: '', newPass: '', confirm: '' });
 
   const handleSubmit = async (e) => {

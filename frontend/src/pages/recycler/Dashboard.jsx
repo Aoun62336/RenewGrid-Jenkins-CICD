@@ -10,7 +10,7 @@ export default function Dashboard() {
   const [assignedWaste, setAssignedWaste] = useState([]);
   const [inventory,     setInventory]     = useState({ total: 0 });
   const [stats,         setStats]         = useState({ collected: 0, processing: 0, completed: 0 });
-  const [loading,       setLoading]       = useState(true);
+  const [loading,       setLoading]       = useState(true); // eslint-disable-line no-unused-vars
 
   useEffect(() => {
     const fetchData = async () => {

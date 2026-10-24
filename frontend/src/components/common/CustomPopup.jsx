@@ -1,33 +1,19 @@
-import React, { useState, useEffect } from 'react';
-
-let alertCallback = null;
-let confirmCallback = null;
-
-export const customAlert = (message, type = 'info') => {
-  return new Promise((resolve) => {
-    alertCallback = { message, type, resolve };
-    if (triggerRender) triggerRender();
-  });
-};
-
-export const customConfirm = (message) => {
-  return new Promise((resolve) => {
-    confirmCallback = { message, resolve };
-    if (triggerRender) triggerRender();
-  });
-};
-
-let triggerRender = null;
+import { useEffect, useState } from 'react';
+import {
+  subscribePopup,
+  resolveAlert,
+  resolveConfirm,
+} from './popupService';
 
 export default function CustomPopup() {
   const [alertState, setAlertState] = useState(null);
   const [confirmState, setConfirmState] = useState(null);
 
   useEffect(() => {
-    triggerRender = () => {
-      setAlertState(alertCallback);
-      setConfirmState(confirmCallback);
-    };
+    return subscribePopup((alert, confirm) => {
+      setAlertState(alert);
+      setConfirmState(confirm);
+    });
   }, []);
 
   if (!alertState && !confirmState) return null;
@@ -44,13 +30,8 @@ export default function CustomPopup() {
             </div>
             <h3 className="text-xl font-black text-center text-on-surface mb-2">Notification</h3>
             <p className="text-center text-slate-600 mb-8 font-medium">{alertState.message}</p>
-            <button 
-              onClick={() => {
-                const resolve = alertState.resolve;
-                alertCallback = null;
-                setAlertState(null);
-                resolve();
-              }}
+            <button
+              onClick={resolveAlert}
               className="w-full py-4 bg-primary text-white rounded-xl font-bold hover:shadow-lg transition-all">
               Okay
             </button>
@@ -65,23 +46,13 @@ export default function CustomPopup() {
             <h3 className="text-xl font-black text-center text-on-surface mb-2">Are you sure?</h3>
             <p className="text-center text-slate-600 mb-8 font-medium">{confirmState.message}</p>
             <div className="flex gap-3">
-              <button 
-                onClick={() => {
-                  const resolve = confirmState.resolve;
-                  confirmCallback = null;
-                  setConfirmState(null);
-                  resolve(false);
-                }}
+              <button
+                onClick={() => resolveConfirm(false)}
                 className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-all">
                 Cancel
               </button>
-              <button 
-                onClick={() => {
-                  const resolve = confirmState.resolve;
-                  confirmCallback = null;
-                  setConfirmState(null);
-                  resolve(true);
-                }}
+              <button
+                onClick={() => resolveConfirm(true)}
                 className="flex-1 py-3 bg-red-500 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all">
                 Confirm
               </button>

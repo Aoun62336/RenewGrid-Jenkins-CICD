@@ -1,4 +1,4 @@
-import { customAlert, customConfirm } from '../../components/common/CustomPopup';
+import { customAlert } from '../../components/common/popupService';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import RecyclerSidebar from '../../components/layout/RecyclerSidebar';

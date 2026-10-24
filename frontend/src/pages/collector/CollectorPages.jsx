@@ -1,9 +1,9 @@
-import { customAlert, customConfirm } from '../../components/common/CustomPopup';
+import { customConfirm } from '../../components/common/popupService';
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import CollectorSidebar from '../../components/layout/CollectorSidebar';
-import { collectorAPI, authAPI, pickupAPI, BASE_URL } from '../../services/api';
+import { collectorAPI, authAPI, BASE_URL } from '../../services/api';
 import toast from 'react-hot-toast';
 import ProfileImageCropper from '../../components/common/ProfileImageCropper';
 
@@ -29,22 +29,31 @@ export function AssignedPickups() {
   const [total, setTotal] = useState(0);
   const PAGE_SIZE = 10;
 
-  const loadPickups = () => {
+  const loadPickups = React.useCallback(() => {
     setLoading(true);
+
     collectorAPI.myPickups(page, PAGE_SIZE)
-      .then(data => {
+      .then((data) => {
         const raw = data.items || data || [];
-        const filtered = raw.filter(p => p.status !== 'CANCELLED');
+        const filtered = raw.filter(
+          (pickup) => pickup.status !== 'CANCELLED'
+        );
+
         setPickups(filtered);
         setTotal(data.total || filtered.length);
       })
-      .catch(err => console.error('Failed to load pickups', err))
-      .finally(() => setLoading(false));
-  };
+      .catch((err) => {
+        console.error('Failed to load pickups', err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [page]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadPickups();
-  }, [page]);
+  }, [loadPickups]);
 
   const handleAccept = async (id) => {
     try {
@@ -209,7 +218,7 @@ export function RouteOptimization() {
   useEffect(() => {
     collectorAPI.myPickups()
       .then(data => {
-        const items = (data.items || data || []).map((p, i) => ({
+        const items = (data.items || data || []).map((p) => ({
           ...p,
           lat: p.latitude || (28.5355 + (Math.random() * 0.1 - 0.05)),
           lng: p.longitude || (77.3910 + (Math.random() * 0.1 - 0.05))
@@ -678,6 +687,7 @@ export function UpdateStatus() {
       .finally(() => setLoading(false));
   };
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { loadPickups(); }, []);
 
   const triggerTransition = async (pickup, nextState) => {
