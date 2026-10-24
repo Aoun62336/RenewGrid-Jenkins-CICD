@@ -78,7 +78,8 @@ docker run --rm \
     /tmp/venv/bin/pip install \
       --disable-pip-version-check \
       -r requirements.txt \
-      pytest==8.4.2
+      pytest==8.4.2 \
+      httpx2
 
     PYTHONDONTWRITEBYTECODE=1 \
       /tmp/venv/bin/python -m pytest \

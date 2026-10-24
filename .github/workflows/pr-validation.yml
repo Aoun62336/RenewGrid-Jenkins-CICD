@@ -59,7 +59,7 @@ jobs:
         working-directory: backend
         run: |
           python -m pip install --disable-pip-version-check -r requirements.txt
-          python -m pip install pytest==8.4.2
+          python -m pip install pytest==8.4.2 httpx2
 
       - name: Run backend regression tests
         working-directory: backend
