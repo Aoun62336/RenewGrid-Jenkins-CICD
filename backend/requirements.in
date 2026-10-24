@@ -1,13 +1,13 @@
-fastapi
+fastapi>=0.142.3
 uvicorn[standard]
 sqlalchemy
 psycopg2-binary
 alembic
-python-jose[cryptography]
+python-jose[cryptography]>=3.4.0
 bcrypt
-python-multipart
+python-multipart>=0.0.30
 pydantic-settings
 email-validator
 qrcode[pil]
-pillow
+pillow>=13.0.0
 slowapi
