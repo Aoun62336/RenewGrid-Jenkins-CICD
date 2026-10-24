@@ -115,7 +115,7 @@ No public domain or production HTTPS endpoint is configured.
 
 ## Documentation
 
-- [`APPLICATION.md`](APPLICATION.md) — original application documentation
+- [`APPLICATION.md`](APPLICATION.md) — oconcise project and implementation overview
 - [`DEVOPS-TASK1.md`](DEVOPS-TASK1.md) — completed Task 1 implementation
 - [`DEVOPS-TASK2.md`](DEVOPS-TASK2.md) — Jenkins CI/CD architecture, operations, and execution evidence
 - [`jenkins-verification.md`](evidence/jenkins/jenkins-verification.md) — verified execution record and evidence

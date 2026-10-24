@@ -518,7 +518,7 @@ The SCM-triggered Build #7 followed a documentation pull-request merge and still
 
 The verified pipeline execution is documented in:
 
-**[Jenkins Build #7 — Verification Record](docs/jenkins-verification.md)**
+**[Jenkins Build #7 — Verification Record](evidenc/jenkins/jenkins-verification.md)**
 
 The evidence includes:
 
