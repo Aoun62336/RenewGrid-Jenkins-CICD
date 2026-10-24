@@ -14,7 +14,7 @@ The implementation extends the internship's introductory CI/CD requirements with
 
 **Repository:** [RenewGrid-DevOps](https://github.com/Aoun62336/RenewGrid-DevOps)
 
-**CI/CD Workflow:** [renewgrid-cicd.yml](.github/workflows/renewgrid-cicd.yml)
+**CI/CD Workflow:** [renewgrid-cicd.yml](https://github.com/Aoun62336/RenewGrid-DevOps/blob/main/.github/workflows/renewgrid-cicd.yml)
 
 **Verified pipeline:** [Successful GitHub Actions Run #2](https://github.com/Aoun62336/RenewGrid-DevOps/actions/runs/39774801095)
 

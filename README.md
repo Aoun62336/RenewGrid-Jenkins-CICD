@@ -2,132 +2,224 @@
 
 **Elevate Labs | DevOps Internship — Task 2**
 
+A Jenkins-based CI/CD implementation for RenewGrid, a containerized React, FastAPI, and PostgreSQL application. The pipeline automatically validates source changes, executes tests and security scans, builds versioned Docker images, publishes them to Docker Hub, and deploys the application using Docker Compose on AWS EC2.
+
+**[CI/CD Documentation](DEVOPS-TASK2.md) · [Verified Execution](evidence/jenkins/jenkins-verification.md) · [Docker Hub — Backend](https://hub.docker.com/r/fire2686/renewgrid-jenkins-api) · [Docker Hub — Frontend](https://hub.docker.com/r/fire2686/renewgrid-jenkins-web)**
+
 ## Overview
 
-This repository demonstrates an automated Jenkins CI/CD pipeline for
-RenewGrid, a full-stack e-waste recycling and rewards application
-built with React, FastAPI, and PostgreSQL.
+RenewGrid is an e-waste recycling and rewards management platform with four application roles:
 
-The implementation extends the completed containerization work from
-Task 1 and introduces Jenkins-based validation, security scanning,
-Docker Hub image publication, and Docker Compose deployment on AWS EC2.
+- **User:** Submits e-waste, receives price estimates, schedules pickups, tracks collection, and manages rewards.
+- **Collector:** Manages assigned pickups, verifies collection through QR codes, and uploads collection evidence.
+- **Recycler:** Processes collected waste, manages recycling decisions, and records processing activities.
+- **Administrator:** Manages users, pickup assignments, pricing rules, analytics, and reports.
+
+The application uses a React frontend served by Nginx, a FastAPI REST API, and PostgreSQL for persistent data. Alembic manages database schema migrations.
+
+This repository focuses on automating the application's delivery through Jenkins while retaining its existing functionality.
 
 ## Technology Stack
 
-| Component          | Technology                    |
-| ------------------ | ----------------------------- |
-| Source Control     | Git and GitHub                |
-| CI/CD              | Jenkins Declarative Pipeline  |
-| Infrastructure     | AWS EC2, Ubuntu               |
-| Containers         | Docker Engine, Docker Compose |
-| Image Registry     | Docker Hub                    |
-| Security Scanning  | Trivy                         |
-| Frontend           | React, Vite, Nginx            |
-| Backend            | Python, FastAPI               |
-| Database           | PostgreSQL                    |
-| Migrations         | Alembic                       |
-| Testing            | Pytest, ESLint                |
-| Software Inventory | CycloneDX SBOM                |
+| Category               | Technologies                       |
+| ---------------------- | ---------------------------------- |
+| Version control        | Git, GitHub                        |
+| CI/CD                  | Jenkins                            |
+| Infrastructure         | AWS EC2, Ubuntu Linux              |
+| Containerization       | Docker, Docker Compose             |
+| Container registry     | Docker Hub                         |
+| Security scanning      | Trivy                              |
+| Test and build tooling | pytest, Node.js, npm, Vite, ESLint |
+| Software supply chain  | CycloneDX SBOM                     |
+| Frontend               | React, Nginx                       |
+| Backend                | Python, FastAPI, Uvicorn           |
+| Database               | PostgreSQL                         |
+| Database migrations    | Alembic                            |
 
-## Architecture
+## CI/CD Architecture
 
-GitHub main branch
-→ Jenkins
-→ Source security scan
-→ Backend and frontend validation
-→ Docker image builds
-→ Image vulnerability scan and SBOM generation
-→ Docker Hub
-→ Docker Compose on AWS EC2
-→ Deployment health verification
+```mermaid
+flowchart TD
+    A["GitHub — main"] --> B["Jenkins on AWS EC2"]
+    B --> C["Validation and Security Gates"]
+    C --> D["Docker Image Builds"]
+    D --> E["Trivy Scan and SBOM"]
+    E --> F["Docker Hub"]
+    F --> G["Docker Compose on EC2"]
+    G --> H["Deployment Verification"]
+```
+
+The deployed application uses four Docker Compose services:
+
+| Service   | Responsibility                                    |
+| --------- | ------------------------------------------------- |
+| `db`      | Persistent PostgreSQL database                    |
+| `migrate` | One-time Alembic database migrations              |
+| `api`     | FastAPI backend                                   |
+| `web`     | Nginx-hosted React frontend and API reverse proxy |
+
+The database and API are not directly published to the internet. The frontend is bound to the EC2 instance's loopback interface and accessed through SSH port forwarding.
+
+Jenkins is also accessed through an SSH tunnel. No purchased domain or public application load balancer is required for this demonstration.
 
 ## Jenkins Pipeline
 
-The Jenkinsfile defines ten stages:
+The Jenkins pipeline is defined in the repository's [`Jenkinsfile`](Jenkinsfile).
 
-1. Checkout
-2. Secret Scan
-3. Backend Tests
-4. Frontend Validation
-5. Docker Build
-6. Image Security Scan
-7. Generate SBOM
-8. Docker Hub Publish
-9. Deploy to EC2
-10. Deployment Verification
+| Stage                   | Purpose                                                        |
+| ----------------------- | -------------------------------------------------------------- |
+| Checkout                | Retrieve the selected Git commit                               |
+| Secret Scan             | Execute repository secret scanning                             |
+| Backend Tests           | Run automated Python tests                                     |
+| Frontend Validation     | Install dependencies, build React, and run ESLint              |
+| Docker Build            | Build frontend and backend container images                    |
+| Image Security Scan     | Check container images for configured vulnerability severities |
+| Generate SBOM           | Produce CycloneDX software bills of materials                  |
+| Docker Hub Publish      | Publish commit-tagged container images                         |
+| Deploy to EC2           | Deploy the application through Docker Compose                  |
+| Deployment Verification | Check frontend, API, and database-dependent functionality      |
 
-The pipeline stops when a required stage fails.
+Jenkins detects changes in the configured Git branch and starts the pipeline automatically.
 
-Jenkins uses SCM polling to detect changes to the main branch.
-Pull requests are validated separately before merging.
+A failed required validation or security stage prevents subsequent release stages from executing.
 
-## Containerized Application
+For implementation details, see [DEVOPS-TASK2.md](DEVOPS-TASK2.md).
 
-The Docker Compose configuration includes four services:
+## Verified Execution
 
-- `db` — PostgreSQL
-- `migrate` — Alembic migrations
-- `api` — FastAPI backend
-- `web` — React frontend served by Nginx
+**Jenkins Build #7 completed successfully on October 24, 2026.**
 
-The database and upload directories use persistent Docker volumes.
+| Verification            | Recorded result          |
+| ----------------------- | ------------------------ |
+| Trigger                 | Started by an SCM change |
+| Git branch              | `main`                   |
+| Commit                  | `81860ebf42a1`           |
+| Backend tests           | 26 passed, 3 warnings    |
+| Frontend build          | Passed                   |
+| Frontend lint           | Passed                   |
+| Image security scan     | Passed                   |
+| SBOM generation         | Passed                   |
+| Docker Hub publishing   | Passed                   |
+| EC2 deployment          | Passed                   |
+| Deployment verification | Passed                   |
 
-## Image Repositories
+The pipeline reported a total duration of **54 seconds**.
 
-Backend:
-`docker.io/YOUR_DOCKERHUB_USERNAME/renewgrid-jenkins-api`
+**Verified commit:** [`81860ebf42a1`](https://github.com/Aoun62336/RenewGrid-Jenkins-CICD/commit/81860ebf42a1781fdcccfaa2fa3a21538be32a0e)
 
-Frontend:
-`docker.io/YOUR_DOCKERHUB_USERNAME/renewgrid-jenkins-web`
+The complete results, image digests, and execution evidence are documented in [Jenkins Verification](evidence/jenkins/jenkins-verification.md).
 
-Images use commit-specific tags, and deployment uses published digests.
+### Published Container Images
 
-## Security
+**Backend**
 
-The demonstration includes:
+```text
+docker.io/fire2686/renewgrid-jenkins-api:sha-81860ebf42a1
+```
 
-- Restricted EC2 inbound security-group access
-- Jenkins bound to the loopback interface
-- SSH port forwarding for web access
-- Jenkins-managed Docker Hub credentials
-- No credentials committed to Git
-- Secret scanning
-- Container vulnerability scanning
-- Non-root application runtime containers
-- Internal Docker networking for PostgreSQL
-- Pull-request validation before main-branch delivery
+**Frontend**
 
-## Deployment
+```text
+docker.io/fire2686/renewgrid-jenkins-web:sha-81860ebf42a1
+```
 
-Jenkins runs on the same EC2 instance as the RenewGrid containers.
+Both images were published successfully to Docker Hub and subsequently pulled during the verified deployment.
 
-The pipeline pulls images from Docker Hub and deploys the application
-with Docker Compose.
+## Local Docker Compose Setup
 
-Deployment configuration is stored under `/opt/renewgrid`.
+These instructions run the application locally by building images from source. They are separate from the Jenkins-managed EC2 deployment.
 
-The application is accessed through SSH port forwarding:
+### Prerequisites
 
-- Jenkins: `http://localhost:8081`
-- RenewGrid: `http://localhost:8080`
+- Git
+- Docker Engine or Docker Desktop
+- Docker Compose v2
 
-No public domain or production HTTPS endpoint is configured.
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Aoun62336/RenewGrid-Jenkins-CICD.git
+cd RenewGrid-Jenkins-CICD
+```
+
+### 2. Configure the application
+
+```bash
+cp .env.compose.example .env.compose
+```
+
+Edit `.env.compose` and replace the example credential values with independently generated secrets.
+
+Never commit the populated environment file.
+
+### 3. Validate the configuration
+
+```bash
+docker compose --env-file .env.compose config --quiet
+```
+
+### 4. Start the application
+
+```bash
+docker compose --env-file .env.compose up -d --build
+```
+
+### 5. Check service status
+
+```bash
+docker compose --env-file .env.compose ps -a
+```
+
+### 6. Verify the frontend
+
+```bash
+curl --fail http://127.0.0.1:8080/nginx-health
+```
+
+The application is available locally at:
+
+```text
+http://localhost:8080
+```
+
+### 7. Stop the application
+
+```bash
+docker compose --env-file .env.compose down
+```
+
+This stops the application without intentionally deleting its named data volumes.
+
+## Execution Evidence
+
+| Evidence                                                         | Description                            |
+| ---------------------------------------------------------------- | -------------------------------------- |
+| [Jenkins Pipeline](evidence/jenkins/01-jenkins-pipeline.png)     | Successful pipeline stages             |
+| [Backend Tests](evidence/jenkins/02-backend-tests.png)           | Automated pytest execution             |
+| [Container Security Scan](evidence/jenkins/03-security-scan.png) | Trivy image scanning                   |
+| [Docker Hub Images](evidence/jenkins/04-dockerhub-images.png)    | Published container images             |
+| [EC2 Deployment](evidence/jenkins/05-deployment.png)             | Running RenewGrid application          |
+| [Automatic Trigger](evidence/jenkins/06-automatic-trigger.png)   | SCM-triggered successful Jenkins build |
+
+Additional machine-readable evidence, including JUnit test results, vulnerability reports, SBOMs, and deployment references, was archived by Jenkins Build #7.
+
+## Security and Deployment Scope
+
+This implementation includes automated validation, secret scanning, image vulnerability scanning, non-root application containers, internal service networking, versioned image tags, and deployment health checks.
+
+It is a **controlled internship demonstration**, not a claim of production high availability or complete security certification.
+
+The Jenkins UI and deployed application are accessed through SSH port forwarding rather than public-facing endpoints. Public deployment would require additional measures such as HTTPS, stronger infrastructure isolation, operational monitoring, backups, and recovery planning.
 
 ## Documentation
 
-- `APPLICATION.md` — original application documentation
-- `DEVOPS-TASK1.md` — completed Task 1 implementation
-- `DEVOPS-TASK2.md` — Jenkins deployment and execution evidence
+- [Detailed Jenkins CI/CD Guide](DEVOPS-TASK2.md)
+- [Verified Jenkins Build and Evidence](evidence/jenkins/jenkins-verification.md)
+- [Backend Application Documentation](backend/README.md)
+- [Original RenewGrid Task 1 Implementation](https://github.com/Aoun62336/RenewGrid-DevOps)
 
-## Scope
+---
 
-This project is an internship demonstration.
-
-It is not presented as a production-grade, highly available platform.
-Production operation would require additional build isolation,
-monitoring, backup and recovery procedures, hardened secret handling,
-and a properly configured public HTTPS endpoint.
-
-## Author
-
-Aoun Md.
+**Project:** RenewGrid  
+**Internship:** Elevate Labs — DevOps Task 2  
+**Implementation:** Jenkins CI/CD, Docker Hub, and AWS EC2

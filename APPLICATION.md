@@ -75,10 +75,10 @@ The database and upload directories use persistent Docker volumes.
 ## Image Repositories
 
 Backend:
-`docker.io/YOUR_DOCKERHUB_USERNAME/renewgrid-jenkins-api`
+`docker.io/fire2686/renewgrid-jenkins-api`
 
 Frontend:
-`docker.io/YOUR_DOCKERHUB_USERNAME/renewgrid-jenkins-web`
+`docker.io/fire2686/renewgrid-jenkins-web`
 
 Images use commit-specific tags, and deployment uses published digests.
 
@@ -115,9 +115,10 @@ No public domain or production HTTPS endpoint is configured.
 
 ## Documentation
 
-- `APPLICATION.md` — original application documentation
-- `DEVOPS-TASK1.md` — completed Task 1 implementation
-- `DEVOPS-TASK2.md` — Jenkins deployment and execution evidence
+- [`APPLICATION.md`](APPLICATION.md) — original application documentation
+- [`DEVOPS-TASK1.md`](DEVOPS-TASK1.md) — completed Task 1 implementation
+- [`DEVOPS-TASK2.md`](DEVOPS-TASK2.md) — Jenkins CI/CD architecture, operations, and execution evidence
+- [`jenkins-verification.md`](evidence/jenkins/jenkins-verification.md) — verified execution record and evidence
 
 ## Scope
 
