@@ -22,7 +22,8 @@ COPY requirements.txt ./
 # storage between builds. If the build fails partway, already-downloaded
 # packages are already cached and the next run skips them — no full re-download.
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install -r requirements.txt
+    pip install -r requirements.txt \
+    && pip uninstall -y pip
 
 
 # ─── Stage 2: Production application runtime ─────────────────────────────────
