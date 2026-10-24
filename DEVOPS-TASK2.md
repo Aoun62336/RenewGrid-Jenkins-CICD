@@ -79,6 +79,9 @@ Deployment verification checks:
 
 The pipeline reports failure when the required checks do not pass.
 
+The Jenkins pipeline was also evaluated for automatic execution
+after a new commit was merged into the main branch.
+
 ## 8. Execution Evidence
 
 Complete this section after executing the pipeline.
