@@ -20,16 +20,11 @@ cffi==2.1.0
     # via cryptography
 click==8.4.2
     # via uvicorn
-colorama==0.4.6
-    # via
-    #   click
-    #   qrcode
-    #   uvicorn
 cryptography==50.0.2
     # via python-jose
 deprecated==3.0.0
     # via limits
-dnspython==2.8.0
+dnspython==2.9.0
     # via email-validator
 ecdsa==0.19.2
     # via python-jose
@@ -120,6 +115,8 @@ typing-inspection==0.4.2
     #   pydantic-settings
 uvicorn[standard]==0.34.2
     # via -r requirements.in
+uvloop==0.23.0
+    # via uvicorn
 watchfiles==1.2.0
     # via uvicorn
 websockets==16.1.1
