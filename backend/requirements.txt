@@ -20,11 +20,6 @@ cffi==2.1.0
     # via cryptography
 click==8.4.2
     # via uvicorn
-colorama==0.4.6
-    # via
-    #   click
-    #   qrcode
-    #   uvicorn
 cryptography==50.0.2
     # via python-jose
 deprecated==3.0.0
@@ -63,7 +58,7 @@ pillow==13.0.0
     #   qrcode
 psycopg2-binary==2.9.12
     # via -r requirements.in
-pyasn1==0.6.4
+pyasn1==0.6.5
     # via
     #   python-jose
     #   rsa
@@ -120,6 +115,8 @@ typing-inspection==0.4.2
     #   pydantic-settings
 uvicorn[standard]==0.34.2
     # via -r requirements.in
+uvloop==0.23.0
+    # via uvicorn
 watchfiles==1.2.0
     # via uvicorn
 websockets==16.1.1
